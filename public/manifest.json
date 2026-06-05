@@ -1,0 +1,24 @@
+{
+  "short_name": "Msomi AI",
+  "name": "MSOMI AI - Academic Co-Pilot",
+  "description": "Smart study co-pilot, planner, mock tests, smart groups and custom study tools for students.",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=192&q=80",
+      "type": "image/jpeg",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=512&q=80",
+      "type": "image/jpeg",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#FCFAF7",
+  "theme_color": "#C15B32",
+  "display": "standalone",
+  "orientation": "portrait",
+  "categories": ["education", "productivity"]
+}
