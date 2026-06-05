@@ -1,0 +1,92 @@
+# Msomi AI Automated Deployment Pipeline (CI/CD)
+# Created by Co-Pilot for Fredrick David Mdikula
+# 
+# English: This workflow automatically triggers on every push to the 'main' or 'master' branch.
+#          It checks out your code, installs dependencies, builds the Vite production bundle,
+#          and deploys it to your platform of choice (Vercel or Netlify) if secrets are configured.
+#
+# Kiswahili: Huu ni mtiririko wa kazi (CI/CD) unaojiendesha wenyewe kila unaposukuma (push) mabadiliko
+#            kwenda kwenye matawi ya 'main' au 'master' kwenye GitHub. Utaandaa na kujenga mradi (build)
+#            na kuutuma (deploy) Vercel au Netlify kulingana na funguo (Secrets) ulizoweka kwenye GitHub.
+
+name: Build and Deploy Core Application
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # Inaruhusu kuanzisha pipeline kwa mikono kwenye GitHub Actions dashboard.
+
+jobs:
+  deploy:
+    name: Build & Run Multi-Platform Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: ⚡ Install clean dependencies
+        run: npm ci
+
+      - name: ⚙️ Run Vite & Express Production Bundler
+        run: npm run build
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+
+      # -------------------------------------------------------------
+      # OPTION A: AUTOMATED DEPLOYMENT TO VERCEL (RECOMMENDED FOR FULL-STACK)
+      # -------------------------------------------------------------
+      # Kiswahili: Ili kuwezesha Vercel, jaza 'GitHub Secrets' zifuatazo kwanza kwenye repo yako:
+      #            1. VERCEL_TOKEN (App Token kutoka kwa Vercel: Account Settings > Tokens)
+      #            2. VERCEL_ORG_ID (Id ya timu yako/account ya Vercel)
+      #            3. VERCEL_PROJECT_ID (Id ya mradi wako uliounda Vercel)
+      # 
+      # English: Set VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID secrets in your 
+      #          GitHub Repository settings to automatically deploy with zero-config.
+      - name: 🚀 Deploy Live Production Build to Vercel
+        if: env.VERCEL_TOKEN != null || secrets.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+          vercel-args: '--prod'
+        continue-on-error: true # Let Netlify try if Vercel secrets aren't provided
+
+      # -------------------------------------------------------------
+      # OPTION B: AUTOMATED DEPLOYMENT TO NETLIFY (STATIC FALLBACK)
+      # -------------------------------------------------------------
+      # Kiswahili: Ili kutumia Netlify, jaza 'GitHub Secrets' hizi:
+      #            1. NETLIFY_AUTH_TOKEN (Token kutoka Netlify: User settings > Applications > Personal access tokens)
+      #            2. NETLIFY_SITE_ID (Site API ID kwenye Netlify: Site Configuration > General > Site details)
+      #
+      # English: Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository secrets to leverage
+      #          Netlify's high-speed global static edge network.
+      - name: ⚡ Deploy Static Website to Netlify Global CDN
+        if: secrets.NETLIFY_AUTH_TOKEN != ''
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './dist'
+          production-branch: 'main'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Automated Release via GitHub Actions pipeline ID: ${{ github.run_id }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
