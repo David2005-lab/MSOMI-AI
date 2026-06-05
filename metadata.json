@@ -1,0 +1,6 @@
+{
+  "name": "MSOMI AI",
+  "description": "The ultimate academic co-pilot and growth mentor for African university students. Master concepts, prep for exams, solve community problems, and bridge the career gap.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
